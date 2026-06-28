@@ -1,0 +1,8 @@
+# Phase 1 Discovery spike dependencies.
+# These are Phase-4-approved deps (see docs/decision-log.md), installed early for
+# proof-of-concept spikes. Kept separate from the root requirements.txt because spikes
+# are throwaway — the Phase 4 build promotes these into the main requirements.
+
+pygad>=3.7.0            # hot-path binary chromosome GA
+dwave-ocean-sdk>=8.0.0  # cold-path QUBO: dimod + dwave.samplers.SimulatedAnnealingSampler
+# anthropic is already in the root requirements.txt (agent spike uses it)

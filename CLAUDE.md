@@ -132,6 +132,8 @@
 - [ ] `docs/decision-log.md` updated if an architectural decision was made
 - [ ] `docs/lessons-learned.md` updated if something surprising happened
 - [ ] ADR filed in `adr/` if a significant architectural choice was locked in
+- [ ] `wiki/` directory updated to match any changed docs (source of truth for wiki content)
+- [ ] GitHub wiki synced from `wiki/` (clone repo.wiki.git, copy changed files, commit, push)
 
 **Hygiene**
 - [ ] No unresolved TODOs within the task's stated scope
@@ -169,14 +171,20 @@
 | Structured store | SQLite | Zero infrastructure; perfect for experiment run storage and agent logs | Postgres if concurrent writes ever needed |
 | Vector search | ChromaDB | Local-first, persistent, easy Python API, built-in metadata filtering | FAISS for performance gains in a future phase (noted: higher throughput, no built-in persistence) |
 | LLM interface | Anthropic SDK | Primary model provider | Provider-agnostic wrapper via config if needed |
+| Agent framework | Raw SDK (Layer 1), LangGraph (Layer 2+) | Raw SDK maximizes clarity for a fixed sequential pipeline; LangGraph when branching/state persistence justify it | — |
+| Hot-path optimizer | PyGAD | Binary chromosome GA working in ~20 lines; 4-5x faster than DEAP | DEAP if multi-objective (Pareto) needed |
+| Environment graph | NetworkX DiGraph | 10-node ICS graph; attack propagation as graph walk | — |
+| Quantum simulation | Qiskit + Qiskit Aer | QAOA on local statevector simulator; no cloud | IBM Quantum (Layer 4B) |
+| QUBO solver | dwave-ocean-sdk (incl. neal) | Local classical SA for QUBO; same API as real D-Wave | D-Wave Leap QPU (Layer 4A) |
 | Testing | pytest | Standard Python testing; parametrize useful for circuit config sweeps | Add hypothesis for property-based quantum invariant tests |
 | Observability | structlog JSON | Structured, queryable logs; low overhead | OpenTelemetry at scale |
 
-**Anticipated experiment-phase dependencies** *(not yet approved — require decision-log entry before adding):*
-- `LangGraph` — agent orchestration / graph-based workflows
-- `NetworkX` — graph memory and environment modeling
-- `DEAP` — genetic algorithms for evolutionary optimizer
-- `Qiskit` / `Qiskit Aer` — quantum circuit simulation and QUBO formulation
+**Experiment-phase dependencies** *(approved in Phase 0 research — add to requirements.txt at Phase 4 start; rationale in `docs/decision-log.md`):*
+- `qiskit` + `qiskit-aer` — Layer 3 quantum circuit simulation (QAOA)
+- `dwave-ocean-sdk` — local QUBO testing (dwave-neal) + D-Wave Leap cloud access
+- `pygad` — hot-path binary chromosome GA (replaces originally planned DEAP)
+- `networkx` — ICS environment topology graph
+- `langgraph` — agent orchestration from Layer 2 onward
 
 *Adding any dependency requires a reason here and an entry in `docs/decision-log.md`.*
 
@@ -185,22 +193,23 @@
 ## 8. Phase Status
 
 ```
-Phase 0 — Exploration        [🔄 IN PROGRESS]
-Phase 1 — Discovery          [⬜ NOT STARTED]
+Phase 0 — Exploration        [✅ COMPLETE]
+Phase 1 — Discovery          [🔄 IN PROGRESS]
 Phase 2 — Analysis           [⬜ NOT STARTED]
 Phase 3 — Hypothesis         [⬜ NOT STARTED]
 Phase 4 — Experiment         [⬜ NOT STARTED]
-  └─ Layer 1: Agentic System   (hot path — classical agents)
-  └─ Layer 2: Evolutionary Optimizer  (DEAP genetic algorithms)
-  └─ Layer 3: Quantum Simulator       (Qiskit Aer)
-  └─ Layer 4: Real Quantum Backend    (IBM / Azure / D-Wave)
+  └─ Layer 1: Agentic System   (hot path — raw Anthropic SDK)
+  └─ Layer 2: Evolutionary Optimizer  (PyGAD + LangGraph)
+  └─ Layer 3: Quantum Simulator       (Qiskit Aer QAOA / dwave-neal)
+  └─ Layer 4: Real Quantum Backend    (4A: D-Wave Leap / 4B: IBM Quantum)
 Phase 5 — Results            [⬜ NOT STARTED]
 Phase 6 — Conclusion         [⬜ NOT STARTED]
 ```
 
-**Current phase priorities (Exploration):**
-1. Get informed on industry processes, workflows, capabilities, best practices, and available resources as they pertain to quantum + agentic integration
-2. Validate that this architectural approach (hot/cold path split with quantum optimization) is the right way to learn and implement this problem space
+**Current phase priorities (Discovery):**
+1. Pin down exact integration points between the layers (data contracts, interfaces, where each tool plugs in)
+2. Build small proof-of-concept spikes for the highest-risk integrations (QUBO solve, GA↔QUBO loop, agent pipeline)
+3. Confirm the approved tools actually work as researched before committing to them in Phase 4
 
 **Phase discipline:** do not implement features belonging to a later phase until the current
 phase's success criteria are met. Phase definitions live in `docs/architecture.md`.
