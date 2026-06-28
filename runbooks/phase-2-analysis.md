@@ -52,12 +52,17 @@ These are the concrete items the spikes exposed. Each needs analysis, not a fix 
 ## Success Criteria
 
 - [ ] Each gap above analyzed with a documented position (not necessarily solved — understood)
-- [ ] Each risk assessed: likelihood, impact, and whether it blocks the build or is monitored
-- [ ] Architectural assumptions explicitly confirmed or revised in `docs/architecture.md`
-- [ ] A clear answer to the project's central question sharpened: *where, concretely, does quantum
-      add value in this architecture* — based on analysis, not just research
-- [ ] Findings recorded in `docs/discovery-log.md`; any surprises in `docs/lessons-learned.md`
-- [ ] Open questions that need experiments framed as candidate hypotheses for Phase 3
+      → *Pending: attack-type taxonomy, weight-update rule, scenario fidelity.*
+- [~] Each risk assessed: likelihood, impact, and whether it blocks the build or is monitored
+      → *QUBO scaling: **assessed** (probe_qubo_scaling.py) — classical-tractable at all realistic
+        N; does not block. Remaining: 6-agent latency, learning-loop stability.*
+- [x] Architectural assumptions revised in `docs/architecture.md`
+      → *Two-QUBO distinction added; both confirmed classical-tractable. Hot/cold split holds.*
+- [x] A clear answer to the project's central question sharpened
+      → *At this domain's scale quantum adds no performance value; value is pedagogical/architectural.
+        Backed by local measurement, not just research. See discovery-log Phase 2 Analysis.*
+- [x] Findings recorded in `docs/discovery-log.md`; surprise recorded in `docs/lessons-learned.md`
+- [x] Open questions framed as Phase 3 hypothesis candidates (H1 hard-instance, H2 correctness-parity, H3 hot-path-never)
 
 ---
 

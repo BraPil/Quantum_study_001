@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-06-28 — Phase 2 Analysis: QUBO Scaling
+
+Probe `spikes/probe_qubo_scaling.py` measured brute force vs. classical simulated annealing as variable count N grows.
+
+| N | 2^N | BF time | SA time | SA vs BF |
+|---|-----|---------|---------|----------|
+| 20 | 1.0M | 0.55s | 0.06s | optimal |
+| 24 | 16.8M | infeasible | 0.07s | (2-seed agree) |
+| 40 | 1.1T | infeasible | 0.14s | (2-seed agree) |
+| 60 | 1.15×10¹⁸ | infeasible | 0.18s | (2-seed agree) |
+
+**Finding:** Brute force dies ~N=22, but *classical* SA stays sub-200ms and self-consistent to N=60, and is exactly optimal everywhere checkable. So **"brute force infeasible" is not the bar for quantum** — the bar is "even classical heuristics struggle," which this sparse, structured domain never reaches.
+
+**Two-QUBO distinction:** per-event response selection is N≤10 forever (trivially classical); cold-path policy retrospection reaches at most N≈100 (SA solves N=60 in 0.18s). Both classical-tractable.
+
+**Sharpened answer to the central question:** at this domain's scale, quantum adds **no performance value** — its value is pedagogical/architectural (the integration pattern + hot/cold plumbing, quantum as a drop-in swap). The honest finding *is* the deliverable. Phase 3 hypotheses framed: H1 (hard-instance construction), H2 (correctness parity), H3 (hot path never benefits).
+
+---
+
 ## 2026-06-28 — Phase 1 Discovery Spikes
 
 Throwaway proofs in `spikes/` de-risk the highest-risk integrations. All deterministic spikes pass (`tests/test_spikes.py`).

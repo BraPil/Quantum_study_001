@@ -60,3 +60,10 @@ def test_failure_path_suboptimal_chromosome_scores_lower():
 def test_chromosome_rejects_bad_length():
     with pytest.raises(ValueError):
         Chromosome((1, 0, 1))
+
+
+def test_scaling_probe_sa_matches_brute_force():
+    """Guards the probe's central claim: SA finds the exact optimum where checkable."""
+    from probe_qubo_scaling import brute_force_min, make_qubo, sa_min
+    Q = make_qubo(14, seed=1014)
+    assert sa_min(Q) == pytest.approx(brute_force_min(Q))

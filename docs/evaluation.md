@@ -21,6 +21,16 @@ optimization methods. D-Wave demonstrated advantage specifically for magnetic sp
 
 This framing must appear consistently in any documentation, notebooks, or presentations.
 
+**Local evidence (Phase 2, `spikes/probe_qubo_scaling.py`):** Exhaustive brute force becomes
+infeasible around N≈22 variables, but the *classical* simulated-annealing solver stays sub-200ms and
+self-consistent out to N=60 (search space 10¹⁸), and is exactly optimal everywhere ground truth is
+checkable (N≤20). So the bar for quantum is **not** "brute force is infeasible" — it is "even good
+*classical heuristics* struggle," which does not occur at any scale this domain naturally produces.
+The two QUBOs in the architecture both sit comfortably in the classical-heuristic regime: per-event
+response selection is N≤10 forever; cold-path policy retrospection reaches at most N≈100 and SA solves
+N=60 in 0.18s. **Quantum's value here is therefore correctness-of-integration, not speed.** See
+`docs/discovery-log.md` [2026-06-28] Phase 2 Analysis for the full reasoning and limitations.
+
 ---
 
 ## Metrics — To Be Defined in Phase 3 (Hypothesis)

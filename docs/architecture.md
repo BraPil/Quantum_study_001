@@ -14,6 +14,16 @@ The domain used for experimentation is a simulated cybersecurity environment (sm
 
 **Important:** No quantum advantage is expected or claimed at this scale. The value is learning the integration pattern: formulate → encode → solve → extract. See `docs/evaluation.md`.
 
+**Two QUBOs, both classical-tractable (Phase 2 analysis).** The architecture contains two distinct
+optimization problems at very different scales:
+- *Per-event response selection* (hot path) — N ≤ 10 binary variables forever (the action space).
+  Trivially classical; quantum never warranted. Currently handled by the GA.
+- *Cold-path policy retrospection* — the only place N grows (condition × action policy, N≈36–100).
+  Still classical-tractable: the scaling probe solves N=60 in ~0.18s with classical simulated annealing.
+
+Quantum here is a **drop-in swap** (`SimulatedAnnealingSampler` → `DWaveSampler`) for studying the
+integration, not a performance lever. See `docs/discovery-log.md` [2026-06-28] Phase 2 Analysis.
+
 ---
 
 ## Hot Path vs. Cold Path

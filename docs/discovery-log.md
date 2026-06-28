@@ -5,6 +5,88 @@
 
 ---
 
+## [2026-06-28] Phase 2 Analysis — QUBO Scaling: Where (and Whether) Quantum Helps
+
+**Probe:** `spikes/probe_qubo_scaling.py` — structured random QUBOs (sparse pairwise terms, like
+our scenario writ large) solved at increasing variable count N by exhaustive brute force (where
+feasible) and by the local simulated-annealing (SA) sampler. Measured BF time, SA time, SA optimality
+gap vs. ground truth, and two-seed SA self-consistency. Guarded by `test_scaling_probe_sa_matches_brute_force`.
+
+### Data
+
+| N | search space 2^N | BF time | SA time | SA vs BF | 2-seed |
+|---|------------------|---------|---------|----------|--------|
+| 6  | 64                  | 0.000s | 0.02s | optimal | agree |
+| 14 | 16,384              | 0.005s | 0.06s | optimal | agree |
+| 18 | 262,144             | 0.106s | 0.11s | optimal | agree |
+| 20 | 1,048,576           | 0.550s | 0.06s | optimal | agree |
+| 24 | 16,777,216          | infeasible | 0.07s | (unverifiable) | agree |
+| 30 | 1.07×10⁹            | infeasible | 0.08s | (unverifiable) | agree |
+| 40 | 1.10×10¹²           | infeasible | 0.14s | (unverifiable) | agree |
+| 60 | 1.15×10¹⁸           | infeasible | 0.18s | (unverifiable) | agree |
+
+### What it shows
+
+1. **Brute force dies fast.** BF time is exponential (~5× per +2 variables): 0.1s at N=18, 0.55s at
+   N=20, and beyond ~N=22–25 it is infeasible. This is the naive intuition for "when you need
+   something cleverer."
+2. **But classical SA fills the gap completely.** SA stays **sub-200ms even at N=60** (a search space
+   of 10¹⁸), and where brute force can verify (N≤20) SA is **exactly optimal**. Beyond that, two
+   independent SA seeds agree at every size — a (weak) signal that SA has converged, not just guessed.
+3. **Therefore "brute force is infeasible" is NOT the bar for quantum.** The bar is "even good
+   *classical heuristics* struggle." On the kind of structured, sparse problem this domain produces,
+   they don't — SA is cheap and (where checkable) optimal far past where exhaustive search dies.
+
+### The two-QUBO distinction (the key analytical insight)
+
+The architecture has two different optimization problems, and they sit at very different scales:
+
+- **Per-event response selection (hot path).** The action space is ~6–10 actions. This QUBO is
+  **N ≤ 10 forever** — there is no growth path. It is trivially classical; quantum is never warranted
+  here. (The GA already handles it; QUBO would too. Neither needs to be quantum.)
+- **Cold-path policy retrospection.** This is the only place N can grow: a policy of
+  "(condition) → (action subset)" over, say, 6 attack-types × ~6 actions reaches N≈36, and a richer
+  context could push N to ~100. **This is the project's only candidate for an "interesting" QUBO.**
+  But the probe shows classical SA solves N=60 in 0.18s — so even the rich cold-path policy QUBO is
+  not, on performance grounds, a problem that needs quantum.
+
+### Sharpened answer to the project's central question
+
+*"Where does quantum actually add value in this architecture?"* — Based on this analysis, the honest
+answer is: **at the scale this domain naturally produces, quantum adds no performance value. Its value
+here is pedagogical and architectural** — learning the formulate → encode → solve → extract pattern,
+and building the hot/cold plumbing so a quantum solver is a drop-in (`SimulatedAnnealingSampler` →
+`DWaveSampler`) if a genuinely hard, large instance ever arises. This is consistent with the Phase 0
+research conclusion and now backed by local measurement, not just literature.
+
+This is not the exciting answer, but it is the true one, and it directly serves the project's stated
+goal ("see where quantum is best used"). The finding *is* the value: for combinatorial response
+optimization at ICS scale, the right tool is a classical heuristic; quantum's niche lies in larger or
+structurally harder problems than this domain generates.
+
+### Limitations (stated honestly)
+
+- Random sparse QUBOs may be "easy" instances. Quantum advantage is claimed on specific *hard*
+  instances (frustrated couplings / spin-glass landscapes), which these are not — and which this
+  domain does not naturally produce. That asymmetry is itself the point, but it means the probe shows
+  "classical is sufficient *here*," not "classical always wins."
+- SA optimality is ground-truth-verified only to N=20. Beyond that we have self-consistency, not proof.
+- One solver (SA) on one machine; not a hardware benchmark.
+
+### Candidate hypotheses for Phase 3 (where this points next)
+
+- **H1:** If the cold-path policy QUBO is deliberately constructed with frustrated/spin-glass-like
+  couplings (not the natural sparse structure), classical SA degrades and a quantum annealer's
+  solution quality or time-to-solution becomes distinguishable. *(Tests whether quantum can be made
+  to matter here at all — even if artificially.)*
+- **H2:** The pedagogical value is real and measurable: a quantum-solved cold path produces the *same*
+  policy update as the classical path (correctness parity), proving the integration is sound. *(Tests
+  the plumbing, which is the honest deliverable.)*
+- **H3:** Hot-path response selection never benefits from quantum at any realistic action-space size.
+  *(Likely already settled by this probe; Phase 3 may simply confirm and close it.)*
+
+---
+
 ## [2026-06-28] Phase 1 Discovery — Integration Spikes
 
 Built throwaway proof-of-concept spikes in `spikes/` to de-risk the highest-risk integrations

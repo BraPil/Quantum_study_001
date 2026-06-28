@@ -16,6 +16,7 @@
 | `spike_qubo.py` | QUBO solves end-to-end locally; matches brute force | `dwave-ocean-sdk` |
 | `spike_loop.py` | The GA↔QUBO learning loop: hot path → SQLite → cold path → recalibrated weights | `pygad`, `dwave-ocean-sdk` |
 | `spike_agents.py` | Raw-SDK 2-agent pipeline returns a structured result; per-agent latency | `anthropic` + `ANTHROPIC_API_KEY` |
+| `probe_qubo_scaling.py` | **(Phase 2 analysis probe)** Where QUBO stops being a toy: BF dies ~N=22, classical SA stays cheap+optimal to N=60 | `dwave-ocean-sdk`, `numpy` |
 
 Run any spike directly: `python spikes/spike_ga.py`
 The deterministic spikes (GA, QUBO, loop) are also guarded by `tests/test_spikes.py`.
