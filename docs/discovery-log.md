@@ -5,6 +5,61 @@
 
 ---
 
+## [2026-06-28] Phase 1 Discovery — Integration Spikes
+
+Built throwaway proof-of-concept spikes in `spikes/` to de-risk the highest-risk integrations
+before the Phase 4 build. All deterministic spikes pass and are guarded by `tests/test_spikes.py`.
+
+### Findings
+
+- **`neal` package is deprecated — API moved.** Phase 0 research cited the standalone `dwave-neal`
+  package. Running it revealed `ModuleNotFoundError`. The current Ocean SDK exposes the
+  simulated-annealing sampler at `dwave.samplers.SimulatedAnnealingSampler`. Same role, and it's a
+  drop-in swap for `EmbeddingComposite(DWaveSampler())` to move to real hardware. **This is exactly
+  why Discovery builds spikes — "researched" ≠ "runs here."** Docs updated accordingly.
+
+- **Layer data contracts defined and validated** (`spikes/contracts.py`): TelemetryEvent →
+  ResponseContext → Chromosome → FitnessWeights. Key design decision baked in: agents see only
+  non-ground-truth fields of an event (they must *infer* `attack_type`/`is_anomalous`, the sim knows
+  them). Chromosome is the shared currency of GA and QUBO with a fixed 6-action bit ordering.
+
+- **GA and QUBO agree with brute-force ground truth.** On the toy 6-action problem both independently
+  select `[alert, kill_process, deploy_honeypot, rate_limit]` and both correctly *avoid* quarantine
+  because its pairwise penalties (with kill_process and honeypot) outweigh its standalone benefit.
+  This confirms the quadratic QUBO term does real work — the problem isn't trivially separable.
+  Satisfies the `evaluation.md` sanity check (quantum/SA result must match classical at small scale).
+
+- **The GA↔QUBO learning loop closes end-to-end.** Spike (`spike_loop.py`): hot-path GA runs a batch
+  with a deliberately miscalibrated downtime weight (0.5 vs. true 2.0), logging decisions to SQLite.
+  Cold path reads the batch, retrospectively searches weight candidates, and recovers the true weight
+  (2.0) — driving mean regret from 0.92 to 0.00 on a fresh batch. **Proves the hot → store → cold →
+  feedback handoff is wireable**, including the SQLite persistence boundary. (Scope: the weight-update
+  rule is a transparent coordinate search, not a proposed Phase 4 learning algorithm — the spike
+  proves loop mechanics, not an optimal learner.)
+
+- **PyGAD 3.7.0 and dwave-ocean-sdk (dimod 0.12.22) confirmed working** in this environment.
+  Installed via `spikes/requirements-spikes.txt` (kept separate from root requirements — spikes are
+  throwaway). PyGAD needs `suppress_warnings=True` and `random_seed=` for reproducible runs.
+
+- **Agent-pipeline spike written but not yet run.** `spike_agents.py` (raw-SDK Observer→Classifier,
+  Haiku, with sanitize-before-prompt) is complete and gracefully skips when `ANTHROPIC_API_KEY` is
+  absent. **Blocked on credential** — needs Brandt to provide a key via `.env` to confirm the raw-SDK
+  pattern and validate the 5–7s hot-path latency estimate from Phase 0.
+
+### Status vs. Phase 1 Success Criteria
+
+| Criterion | Status |
+|-----------|--------|
+| Layer data contracts defined | ✅ `contracts.py` |
+| QUBO solve works locally (dwave) | ✅ `spike_qubo.py` |
+| PyGAD GA runs | ✅ `spike_ga.py` |
+| 2-agent raw-SDK pipeline | ⏳ written, blocked on API key |
+| GA↔QUBO handoff demonstrated | ✅ `spike_loop.py` |
+| Approved tools confirmed working | ✅ pygad, dwave-ocean-sdk (anthropic pending live call) |
+| Findings recorded | ✅ this entry |
+
+---
+
 ## [2026-06-28] Phase 0 Research — Five-Agent Parallel Survey
 
 Five research agents ran simultaneously covering quantum foundations, backends, agent orchestration,

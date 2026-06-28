@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-06-28 — Phase 1 Discovery Spikes
+
+Throwaway proofs in `spikes/` de-risk the highest-risk integrations. All deterministic spikes pass (`tests/test_spikes.py`).
+
+- **`neal` is deprecated** — sampler moved to `dwave.samplers.SimulatedAnnealingSampler`. Caught by actually running it. *"Researched" ≠ "runs here"* — exactly what Discovery is for.
+- **Layer data contracts defined** (`contracts.py`): TelemetryEvent → ResponseContext → Chromosome → FitnessWeights. Agents infer ground truth; the sim knows it.
+- **GA and QUBO both match brute force** — both avoid quarantine due to pairwise penalties, confirming the quadratic term does real work.
+- **The GA↔QUBO loop closes:** miscalibrated downtime weight (0.5) recovered to truth (2.0) by cold-path retrospection; regret 0.92 → 0.00. Hot → SQLite → cold → feedback handoff proven wireable.
+- **Agent spike written, blocked on `ANTHROPIC_API_KEY`** — needs a key via `.env` to run.
+
+| Criterion | Status |
+|-----------|--------|
+| Data contracts | ✅ |
+| QUBO solve (dwave) | ✅ |
+| PyGAD GA | ✅ |
+| 2-agent raw-SDK pipeline | ⏳ blocked on API key |
+| GA↔QUBO handoff | ✅ |
+| Tools confirmed working | ✅ (anthropic pending live call) |
+
+---
+
 ## 2026-06-28 — Phase 0 Five-Agent Research Survey
 
 Five parallel research agents surveyed the problem space. Headline findings:
