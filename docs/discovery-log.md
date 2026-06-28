@@ -41,10 +41,17 @@ before the Phase 4 build. All deterministic spikes pass and are guarded by `test
   Installed via `spikes/requirements-spikes.txt` (kept separate from root requirements — spikes are
   throwaway). PyGAD needs `suppress_warnings=True` and `random_seed=` for reproducible runs.
 
-- **Agent-pipeline spike written but not yet run.** `spike_agents.py` (raw-SDK Observer→Classifier,
-  Haiku, with sanitize-before-prompt) is complete and gracefully skips when `ANTHROPIC_API_KEY` is
-  absent. **Blocked on credential** — needs Brandt to provide a key via `.env` to confirm the raw-SDK
-  pattern and validate the 5–7s hot-path latency estimate from Phase 0.
+- **Agent-pipeline spike RAN successfully** (`spike_agents.py`, raw-SDK Observer→Classifier on
+  Haiku 4.5). Real measured latency: **Observer 1.65s + Classifier 0.75s = 2.40s for 2 agents**
+  (~1.2s/agent). Extrapolated to the 6-agent roster ≈ **7s**, consistent with the Phase 0 estimate
+  of 5–7s. The raw-SDK + plain-async pattern is confirmed for Layer 1 — no framework needed.
+  - **Contract design validated against a live model:** agents were shown only the non-ground-truth
+    event fields and correctly inferred the threat (`unauthorized_command_injection`, risk 0.92,
+    blast 3) without ever seeing the sim's `attack_type`/`is_anomalous`. The "agents infer, sim
+    knows" boundary works.
+  - Note: agent's inferred label (`unauthorized_command_injection`) differs in wording from the sim's
+    ground-truth label (`unauthorized_plc_write`) though semantically equivalent. Phase 4 will need a
+    canonical attack-type taxonomy so inferred and ground-truth labels are comparable for scoring.
 
 ### Status vs. Phase 1 Success Criteria
 
@@ -53,10 +60,13 @@ before the Phase 4 build. All deterministic spikes pass and are guarded by `test
 | Layer data contracts defined | ✅ `contracts.py` |
 | QUBO solve works locally (dwave) | ✅ `spike_qubo.py` |
 | PyGAD GA runs | ✅ `spike_ga.py` |
-| 2-agent raw-SDK pipeline | ⏳ written, blocked on API key |
+| 2-agent raw-SDK pipeline | ✅ `spike_agents.py` — ran live, 2.40s/2 agents |
 | GA↔QUBO handoff demonstrated | ✅ `spike_loop.py` |
-| Approved tools confirmed working | ✅ pygad, dwave-ocean-sdk (anthropic pending live call) |
+| Approved tools confirmed working | ✅ pygad, dwave-ocean-sdk, anthropic (live call confirmed) |
 | Findings recorded | ✅ this entry |
+
+**All 7 Phase 1 success criteria met.** New Phase 4 to-do surfaced: define a canonical attack-type
+taxonomy so agent-inferred labels are comparable to ground-truth labels for scoring.
 
 ---
 

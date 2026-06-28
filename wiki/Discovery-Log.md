@@ -13,16 +13,18 @@ Throwaway proofs in `spikes/` de-risk the highest-risk integrations. All determi
 - **Layer data contracts defined** (`contracts.py`): TelemetryEvent → ResponseContext → Chromosome → FitnessWeights. Agents infer ground truth; the sim knows it.
 - **GA and QUBO both match brute force** — both avoid quarantine due to pairwise penalties, confirming the quadratic term does real work.
 - **The GA↔QUBO loop closes:** miscalibrated downtime weight (0.5) recovered to truth (2.0) by cold-path retrospection; regret 0.92 → 0.00. Hot → SQLite → cold → feedback handoff proven wireable.
-- **Agent spike written, blocked on `ANTHROPIC_API_KEY`** — needs a key via `.env` to run.
+- **Agent spike ran live:** Observer 1.65s + Classifier 0.75s = 2.40s for 2 agents (~1.2s/agent → ~7s for 6, confirming the Phase 0 estimate). Agents inferred the threat correctly *without* seeing ground truth — the contract design works. Raw-SDK pattern confirmed for Layer 1.
+
+**All 7 Phase 1 criteria met.** New Phase 4 to-do: canonical attack-type taxonomy so inferred and ground-truth labels are comparable for scoring.
 
 | Criterion | Status |
 |-----------|--------|
 | Data contracts | ✅ |
 | QUBO solve (dwave) | ✅ |
 | PyGAD GA | ✅ |
-| 2-agent raw-SDK pipeline | ⏳ blocked on API key |
+| 2-agent raw-SDK pipeline | ✅ ran live |
 | GA↔QUBO handoff | ✅ |
-| Tools confirmed working | ✅ (anthropic pending live call) |
+| Tools confirmed working | ✅ |
 
 ---
 

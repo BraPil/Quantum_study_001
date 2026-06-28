@@ -16,13 +16,13 @@ Move from validated architecture to **proven integration points** and **de-riske
 
 ## Success Criteria
 
-- [ ] Data contracts defined for every layer boundary (TelemetryEvent → agent state → chromosome → QUBO → fitness update)
-- [ ] A minimal QUBO solve works end-to-end with `dwave-neal` locally (formulate → solve → extract) — proves the cold-path tool
-- [ ] A minimal PyGAD binary chromosome GA runs with a toy fitness function — proves the hot-path optimizer
-- [ ] A minimal 2-agent raw-SDK pipeline passes a TelemetryEvent through and returns a structured result — proves the agent pattern
-- [ ] The GA↔QUBO handoff is demonstrated in a spike: GA result logged → QUBO reads it → updated weights returned
-- [ ] Every approved tool installed and confirmed working in this environment (not just researched)
-- [ ] Discovery findings recorded in `docs/discovery-log.md`; any surprises in `docs/lessons-learned.md`
+- [x] Data contracts defined for every layer boundary — `spikes/contracts.py`
+- [x] A minimal QUBO solve works end-to-end locally — `spikes/spike_qubo.py` (note: sampler is `dwave.samplers.SimulatedAnnealingSampler`, not the deprecated `neal`)
+- [x] A minimal PyGAD binary chromosome GA runs with a toy fitness function — `spikes/spike_ga.py`
+- [x] A minimal 2-agent raw-SDK pipeline passes a TelemetryEvent through — `spikes/spike_agents.py` (ran live, 2.40s/2 agents)
+- [x] The GA↔QUBO handoff is demonstrated in a spike — `spikes/spike_loop.py` (regret 0.92 → 0.00)
+- [x] Every approved tool installed and confirmed working — pygad, dwave-ocean-sdk, anthropic
+- [x] Discovery findings recorded in `docs/discovery-log.md`
 
 ---
 
