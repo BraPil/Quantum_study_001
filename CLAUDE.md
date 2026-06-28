@@ -132,6 +132,8 @@
 - [ ] `docs/decision-log.md` updated if an architectural decision was made
 - [ ] `docs/lessons-learned.md` updated if something surprising happened
 - [ ] ADR filed in `adr/` if a significant architectural choice was locked in
+- [ ] `wiki/` directory updated to match any changed docs (source of truth for wiki content)
+- [ ] GitHub wiki synced from `wiki/` (clone repo.wiki.git, copy changed files, commit, push)
 
 **Hygiene**
 - [ ] No unresolved TODOs within the task's stated scope

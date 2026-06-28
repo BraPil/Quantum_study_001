@@ -14,6 +14,7 @@ A personal research study in integrating quantum hot and cold paths with agentic
 | [[Technology-Stack]] | Approved stack with rationale and upgrade paths |
 | [[Phase-Roadmap]] | All phases, current status, success criteria |
 | [[Decision-Log]] | Chronological record of architectural decisions |
+| [[Governance]] | Protected paths, wiki sync convention, approval escalation |
 | [[Phase-0-Exploration]] | Active phase runbook |
 
 ---
