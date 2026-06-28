@@ -16,7 +16,8 @@ A personal research study in integrating quantum hot and cold paths with agentic
 | [[Decision-Log]] | Chronological record of architectural decisions |
 | [[Discovery-Log]] | Research findings affecting future work |
 | [[Governance]] | Protected paths, wiki sync convention, approval escalation |
-| [[Phase-1-Discovery]] | Active phase runbook |
+| [[Phase-2-Analysis]] | Active phase runbook |
+| [[Phase-1-Discovery]] | Completed phase runbook |
 | [[Phase-0-Exploration]] | Completed phase runbook |
 
 ---

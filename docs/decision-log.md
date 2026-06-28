@@ -175,4 +175,22 @@ Supersedes the "Anticipated" entry above. These are approved for addition to `re
 
 ---
 
+## [2026-06-28] Phase Transition: Discovery → Analysis
+
+**Decision:** Phase 1 (Discovery) marked COMPLETE. Phase 2 (Analysis) is now active. Approved by Brandt.
+Phase 0 + Phase 1 work merged to `main`; Phase 2 proceeds on branch `phase/2-analysis`.
+
+**Rationale:**
+- All seven Phase 1 success criteria met (see `runbooks/phase-1-discovery.md`). Every high-risk
+  integration is proven wireable with running code: data contracts, GA, QUBO, the GA↔QUBO learning
+  loop, and a live raw-SDK agent pipeline.
+- Discovery surfaced concrete gaps and risks that must be analyzed before designing the experiment
+  (Phase 3) and building it (Phase 4). Analysis is where we reason about those, not paper over them.
+
+**Phase 2 focus:** Analyze the gaps and risks the spikes revealed — attack-type taxonomy, the
+placeholder weight-update rule, toy-vs-real scenario fidelity, 6-agent latency, and QUBO scaling
+beyond the toy 6-variable problem — and revise architectural assumptions accordingly.
+
+---
+
 *Add new entries above this line, newest first.*

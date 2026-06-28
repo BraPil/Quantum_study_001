@@ -194,8 +194,8 @@
 
 ```
 Phase 0 — Exploration        [✅ COMPLETE]
-Phase 1 — Discovery          [🔄 IN PROGRESS]
-Phase 2 — Analysis           [⬜ NOT STARTED]
+Phase 1 — Discovery          [✅ COMPLETE]
+Phase 2 — Analysis           [🔄 IN PROGRESS]
 Phase 3 — Hypothesis         [⬜ NOT STARTED]
 Phase 4 — Experiment         [⬜ NOT STARTED]
   └─ Layer 1: Agentic System   (hot path — raw Anthropic SDK)
@@ -206,10 +206,10 @@ Phase 5 — Results            [⬜ NOT STARTED]
 Phase 6 — Conclusion         [⬜ NOT STARTED]
 ```
 
-**Current phase priorities (Discovery):**
-1. Pin down exact integration points between the layers (data contracts, interfaces, where each tool plugs in)
-2. Build small proof-of-concept spikes for the highest-risk integrations (QUBO solve, GA↔QUBO loop, agent pipeline)
-3. Confirm the approved tools actually work as researched before committing to them in Phase 4
+**Current phase priorities (Analysis):**
+1. Analyze the gaps the Discovery spikes surfaced (attack-type taxonomy, placeholder weight-update rule, toy-vs-real scenario fidelity)
+2. Assess the risks before committing to the build (6-agent latency, QUBO scaling beyond 6 variables, where the learning loop could break)
+3. Revise assumptions: confirm the architecture still holds given what running the spikes taught us — or adjust it
 
 **Phase discipline:** do not implement features belonging to a later phase until the current
 phase's success criteria are met. Phase definitions live in `docs/architecture.md`.
