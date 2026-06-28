@@ -162,4 +162,17 @@ Supersedes the "Anticipated" entry above. These are approved for addition to `re
 
 ---
 
+## [2026-06-28] Phase Transition: Exploration → Discovery
+
+**Decision:** Phase 0 (Exploration) marked COMPLETE. Phase 1 (Discovery) is now active. Approved by Brandt.
+
+**Rationale:**
+- All five Phase 0 success criteria met (see `runbooks/phase-0-exploration.md`).
+- The hot/cold path + quantum optimization architecture is validated as the right learning vehicle.
+- The experiment-phase stack is decided and the tools are researched. Discovery now moves from "is this the right approach?" to "how exactly do the pieces connect, and do they actually work?"
+
+**Phase 1 focus:** Pin down integration points (data contracts/interfaces between layers) and build small proof-of-concept spikes for the highest-risk integrations before committing to the full Phase 4 build.
+
+---
+
 *Add new entries above this line, newest first.*

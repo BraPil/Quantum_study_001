@@ -193,8 +193,8 @@
 ## 8. Phase Status
 
 ```
-Phase 0 — Exploration        [🔄 IN PROGRESS]
-Phase 1 — Discovery          [⬜ NOT STARTED]
+Phase 0 — Exploration        [✅ COMPLETE]
+Phase 1 — Discovery          [🔄 IN PROGRESS]
 Phase 2 — Analysis           [⬜ NOT STARTED]
 Phase 3 — Hypothesis         [⬜ NOT STARTED]
 Phase 4 — Experiment         [⬜ NOT STARTED]
@@ -206,9 +206,10 @@ Phase 5 — Results            [⬜ NOT STARTED]
 Phase 6 — Conclusion         [⬜ NOT STARTED]
 ```
 
-**Current phase priorities (Exploration):**
-1. Get informed on industry processes, workflows, capabilities, best practices, and available resources as they pertain to quantum + agentic integration
-2. Validate that this architectural approach (hot/cold path split with quantum optimization) is the right way to learn and implement this problem space
+**Current phase priorities (Discovery):**
+1. Pin down exact integration points between the layers (data contracts, interfaces, where each tool plugs in)
+2. Build small proof-of-concept spikes for the highest-risk integrations (QUBO solve, GA↔QUBO loop, agent pipeline)
+3. Confirm the approved tools actually work as researched before committing to them in Phase 4
 
 **Phase discipline:** do not implement features belonging to a later phase until the current
 phase's success criteria are met. Phase definitions live in `docs/architecture.md`.

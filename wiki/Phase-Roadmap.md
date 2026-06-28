@@ -6,8 +6,8 @@
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 0 | Exploration | 🔄 IN PROGRESS |
-| 1 | Discovery | ⬜ Not Started |
+| 0 | Exploration | ✅ Complete |
+| 1 | Discovery | 🔄 IN PROGRESS |
 | 2 | Analysis | ⬜ Not Started |
 | 3 | Hypothesis | ⬜ Not Started |
 | 4 | Experiment | ⬜ Not Started |
@@ -22,11 +22,11 @@
 
 ## Phase Descriptions
 
-**Phase 0 — Exploration**
-Get informed on industry processes, capabilities, and best practices. Validate that the hot/cold path + quantum optimization architecture is the right approach. See [[Phase-0-Exploration]] for the active runbook.
+**Phase 0 — Exploration** ✅
+Got informed on industry processes, capabilities, and best practices. Validated the hot/cold path + quantum optimization architecture as the right approach. See [[Discovery-Log]] for outcomes and [[Phase-0-Exploration]] for the completed runbook.
 
-**Phase 1 — Discovery**
-Dig into specifics: which frameworks, which quantum backends, what exact integration points. Begin building proof-of-concept components.
+**Phase 1 — Discovery** 🔄
+Pin down exact integration points (data contracts between layers) and build small proof-of-concept spikes for the highest-risk integrations (QUBO solve, GA, agent pipeline, GA↔QUBO loop). See [[Phase-1-Discovery]].
 
 **Phase 2 — Analysis**
 Analyze what was discovered. Gaps, risks, revised assumptions.
