@@ -13,11 +13,13 @@ Validate the approach before committing to building anything.
 
 ## Success Criteria
 
-- [ ] Can articulate where quantum computing adds genuine value vs. where classical suffices
-- [ ] Surveyed at least 3 quantum frameworks/backends and can compare them for this use case
-- [ ] Hot/cold path architecture validated against at least one credible external reference
-- [ ] Evolutionary optimizer (DEAP-style) confirmed as viable for combinatorial response selection
-- [ ] Decision made on experiment-phase dependencies (LangGraph, NetworkX, DEAP, Qiskit)
+- [x] Can articulate where quantum adds value vs. classical *(no advantage at this scale; value = integration pattern)*
+- [x] Surveyed quantum frameworks/backends *(Qiskit, D-Wave, Azure, PennyLane — D-Wave is native QUBO choice)*
+- [x] Hot/cold path architecture validated *(GA↔QUBO loop confirmed complementary)*
+- [x] Evolutionary optimizer confirmed viable *(PyGAD selected over DEAP)*
+- [x] Decision made on experiment-phase dependencies *(qiskit, dwave-ocean-sdk, pygad, networkx, langgraph approved)*
+
+**Research complete — see [[Discovery-Log]]. Awaiting Brandt's sign-off to transition to Phase 1.**
 
 ---
 

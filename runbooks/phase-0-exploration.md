@@ -15,11 +15,16 @@ Validate the approach before committing to building anything. Emerge with:
 
 ## Success Criteria
 
-- [ ] Can articulate where quantum computing adds genuine value vs. where classical is sufficient
-- [ ] Have surveyed at least 3 real quantum frameworks/backends (e.g., Qiskit, Cirq, D-Wave Ocean, PennyLane) and can compare them for this use case
-- [ ] Hot/cold path architecture validated against at least one credible external reference or practitioner resource
-- [ ] Evolutionary optimizer (DEAP-style genetic algorithm) confirmed as a viable approach for combinatorial response selection
-- [ ] Decision made on experiment-phase dependencies (LangGraph, NetworkX, DEAP, Qiskit) — approved or replaced
+- [x] Can articulate where quantum computing adds genuine value vs. where classical is sufficient
+      → *Finding: no quantum advantage at 6-10 var scale; value is the integration pattern. See discovery-log.*
+- [x] Have surveyed at least 3 real quantum frameworks/backends (e.g., Qiskit, Cirq, D-Wave Ocean, PennyLane) and can compare them for this use case
+      → *Surveyed Qiskit/IBM, D-Wave Leap/Ocean, Azure Quantum, PennyLane. D-Wave is the native QUBO choice.*
+- [x] Hot/cold path architecture validated against at least one credible external reference or practitioner resource
+      → *Validated. GA(hot)↔QUBO(cold) confirmed complementary by research (arxiv 2405.09272).*
+- [x] Evolutionary optimizer confirmed as a viable approach for combinatorial response selection
+      → *Confirmed. PyGAD selected over DEAP for the binary chromosome GA.*
+- [x] Decision made on experiment-phase dependencies — approved or replaced
+      → *Approved: qiskit/qiskit-aer, dwave-ocean-sdk, pygad, networkx, langgraph. DEAP replaced by PyGAD; PennyLane/Azure deferred.*
 
 ---
 

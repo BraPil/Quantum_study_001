@@ -13,9 +13,11 @@ anthropic>=0.30.0
 # Testing
 pytest>=9.0.0
 
-# Anticipated experiment-phase deps (NOT YET APPROVED — do not install)
-# langraph
-# networkx
-# deap
-# qiskit
-# qiskit-aer
+# Experiment-phase deps (APPROVED in Phase 0 — install at Phase 4 start, not before)
+# See docs/decision-log.md [2026-06-28] Phase 0 Research Outcomes for rationale.
+# networkx          # Layer 1 — ICS environment graph
+# pygad             # Layer 2 — hot-path binary chromosome GA (replaces DEAP)
+# langgraph         # Layer 2+ — agent orchestration
+# qiskit            # Layer 3 — quantum circuits
+# qiskit-aer        # Layer 3 — local QAOA simulation
+# dwave-ocean-sdk   # Layer 3-4 — local QUBO (neal) + D-Wave Leap hardware

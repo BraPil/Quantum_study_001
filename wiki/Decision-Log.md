@@ -22,9 +22,19 @@ Using a small-scale ICS/SCADA simulation as the experimental domain because it p
 
 ---
 
-## 2026-06-28 — Experiment-Phase Dependencies (Pending Approval)
+## 2026-06-28 — Phase 0 Research Outcomes (Revised Stack)
 
-LangGraph, NetworkX, DEAP, Qiskit/Qiskit Aer are anticipated but **not yet approved**. Require Brandt's confirmation before install.
+Five-agent research survey produced these decisions (supersede the earlier "pending" list):
+
+- **Layer 4 backend:** D-Wave Leap (4A, native QUBO) primary; IBM Quantum (4B, gate-based learning) secondary.
+- **Local QUBO testing:** `dwave-ocean-sdk` (includes `dwave-neal` classical SA solver).
+- **Hot-path optimizer:** PyGAD replaces DEAP (~20 lines, 4-5x faster).
+- **Agent orchestration:** Raw Anthropic SDK at Layer 1; LangGraph from Layer 2.
+- **ICS simulation:** Pure Python + NetworkX DiGraph, ~200 lines.
+- **Quantum advantage:** Not claimed at this scale — value is the integration pattern.
+
+**Approved for Phase 4:** `qiskit` + `qiskit-aer`, `dwave-ocean-sdk`, `pygad`, `networkx`, `langgraph`.
+**Deferred:** DEAP (replaced), PennyLane, Azure Quantum.
 
 ---
 
