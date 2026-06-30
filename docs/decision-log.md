@@ -193,4 +193,28 @@ beyond the toy 6-variable problem — and revise architectural assumptions accor
 
 ---
 
+## [2026-06-30] Phase Transition: Analysis → Hypothesis
+
+**Decision:** Phase 2 (Analysis) marked COMPLETE. Phase 3 (Hypothesis) is now active. Approved by Brandt
+(delegated — "proceed as you see fit", 2026-06-30). Work continues on branch `phase/2-analysis` for now;
+no merge to `main` performed (human gate).
+
+**Rationale:**
+- All six Phase 2 success criteria met (see `runbooks/phase-2-analysis.md` and the two
+  `docs/discovery-log.md` Phase 2 entries). The three Discovery gaps have documented positions, both
+  remaining risks are assessed with named guards, the architecture is revised, and the central question
+  is sharpened by local measurement: at this domain's scale quantum adds no performance value; the value
+  is pedagogical and architectural.
+- Analysis deliberately carried two questions forward rather than forcing them shut — the
+  policy-QUBO-vs-weight-regression fork (Gap 2) and the damped/held-out-gated loop-convergence
+  experiment (Risk B). Those, plus the three quantum-value candidates, are exactly the raw material for
+  hypotheses. The next move is to make them falsifiable and design the experiment.
+
+**Phase 3 focus:** Formalize H1 (hard-instance distinguishability), H2 (correctness parity), and H3
+(hot-path-never) into testable hypotheses with metrics and falsification criteria; resolve the two open
+forks; and produce a Phase 4 experiment design (build order, what is measured, what counts as success)
+so the build starts from a spec. Still no production code.
+
+---
+
 *Add new entries above this line, newest first.*

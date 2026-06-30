@@ -8,8 +8,8 @@
 |-------|------|--------|
 | 0 | Exploration | ✅ Complete |
 | 1 | Discovery | ✅ Complete |
-| 2 | Analysis | 🔄 IN PROGRESS |
-| 3 | Hypothesis | ⬜ Not Started |
+| 2 | Analysis | ✅ Complete |
+| 3 | Hypothesis | 🔄 IN PROGRESS |
 | 4 | Experiment | ⬜ Not Started |
 | └─ Layer 1 | Agentic Security System | ⬜ |
 | └─ Layer 2 | Evolutionary Optimizer | ⬜ |
@@ -28,11 +28,11 @@ Got informed on industry processes, capabilities, and best practices. Validated 
 **Phase 1 — Discovery** ✅
 Pinned down layer data contracts and built proof-of-concept spikes for every high-risk integration (QUBO solve, GA, agent pipeline, GA↔QUBO loop). All ran. See [[Phase-1-Discovery]] and [[Discovery-Log]].
 
-**Phase 2 — Analysis** 🔄
-Analyze the gaps and risks the spikes surfaced (attack-type taxonomy, placeholder weight-update rule, 6-agent latency, QUBO scaling) and revise architectural assumptions. See [[Phase-2-Analysis]].
+**Phase 2 — Analysis** ✅
+Analyzed the gaps and risks the spikes surfaced and revised architectural assumptions. Sharpened the central question by measurement: at this domain's scale quantum adds no performance value — value is pedagogical/architectural. See [[Phase-2-Analysis]] and [[Discovery-Log]].
 
-**Phase 3 — Hypothesis**
-Form testable hypotheses about where quantum adds value. Define experiment design.
+**Phase 3 — Hypothesis** 🔄
+Formalize the Analysis-surfaced candidates into testable hypotheses (H1 hard-instance distinguishability, H2 correctness parity, H3 hot-path-never), resolve the two open forks (policy-QUBO vs. weight-regression; damped loop convergence), and produce the Phase 4 experiment design. See [[Phase-3-Hypothesis]].
 
 **Phase 4 — Experiment**
 Build and test in four layers (see Architecture). This is where ~90% of the implementation work occurs.

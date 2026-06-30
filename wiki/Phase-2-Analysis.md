@@ -42,7 +42,7 @@ Analysis is reasoning, not building. **No production code.**
 - [x] The central question sharpened: *where concretely does quantum add value here*
 - [x] Open questions framed as Phase 3 hypothesis candidates
 
-**Status: all criteria met — awaiting Brandt sign-off to transition to Phase 3 (Hypothesis).**
+**Status: ✅ COMPLETE — signed off 2026-06-30. Transitioned to Phase 3 (Hypothesis); see [[Phase-3-Hypothesis]].**
 
 ## Phase 2 Outcomes (one-line each)
 
