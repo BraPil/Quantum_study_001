@@ -55,10 +55,26 @@ Key questions to answer before Phase 4:
 - **Policy improvement:** After applying QUBO-updated fitness weights to the GA, does the next round
   of hot-path decisions score higher? This is the learning loop metric.
 
+### Scoring — keep classification accuracy and response quality separate (Phase 2 analysis)
+
+Two distinct things must be scored independently, never conflated:
+- **Classification accuracy** — did the agent's *inferred* attack label resolve to the correct
+  ground-truth `AttackType`? Scored against a **canonical closed enum** (the 6 scenarios), not raw agent
+  free-text. A thin synonym/substring (→ ChromaDB nearest-neighbour if needed) mapping layer normalises
+  the agent's free text to the enum; no second LLM "normalizer" agent. Taxonomy granularity = the 6
+  scenarios, no finer (no label class should map to an identical optimal response).
+- **Response quality** — was the chosen chromosome good (true threat reduction net of cost)?
+
+A mislabel and a bad response are different failures with different fixes; a combined score hides which
+one occurred. See `docs/discovery-log.md` [2026-06-29] Gap 1.
+
 ### Simulation Environment
 
 - **Ground truth signal:** Are different attack types producing meaningfully different optimal response subsets?
   If every attack suggests the same chromosome, the simulation isn't generating useful signal.
+  **(Phase 2: this is the single necessary "fidelity" property — make it an acceptance test on the sim
+  *before* trusting any learning-loop result. Realism beyond this, e.g. protocol accuracy, is not
+  required. See discovery-log [2026-06-29] Gap 3.)**
 - **What "better policy" means quantitatively:** `sum(threat_eliminated) - sum(downtime_cost) - sum(false_positives)`
   across N events. Cold path goal: improve this score vs. the policy before QUBO update.
 
@@ -72,4 +88,4 @@ Key questions to answer before Phase 4:
 
 ---
 
-*Last updated: 2026-06-28*
+*Last updated: 2026-06-29*

@@ -51,11 +51,16 @@ These are the concrete items the spikes exposed. Each needs analysis, not a fix 
 
 ## Success Criteria
 
-- [ ] Each gap above analyzed with a documented position (not necessarily solved — understood)
-      → *Pending: attack-type taxonomy, weight-update rule, scenario fidelity.*
-- [~] Each risk assessed: likelihood, impact, and whether it blocks the build or is monitored
-      → *QUBO scaling: **assessed** (probe_qubo_scaling.py) — classical-tractable at all realistic
-        N; does not block. Remaining: 6-agent latency, learning-loop stability.*
+- [x] Each gap above analyzed with a documented position (not necessarily solved — understood)
+      → *Done — discovery-log [2026-06-29]: taxonomy (canonical enum + thin mapping layer),
+        weight-update rule (nested optimizers; weight update is continuous search, NOT a QUBO),
+        scenario fidelity (signal not realism — decision diversity is the bar).*
+- [x] Each risk assessed: likelihood, impact, and whether it blocks the build or is monitored
+      → *QUBO scaling: **assessed** (probe_qubo_scaling.py) — classical-tractable at all realistic N.
+        6-agent latency: **assessed** — critical path is ~3 LLM hops (Classifier∥Risk concurrent, GA
+        local, Learner off-path), ~4–5s, LOW risk, monitor. Learning-loop stability: **assessed** —
+        MEDIUM likelihood if built naively, guards (held-out gate, monotonic-or-reject, damping)
+        mandatory. None blocks the build.*
 - [x] Architectural assumptions revised in `docs/architecture.md`
       → *Two-QUBO distinction added; both confirmed classical-tractable. Hot/cold split holds.*
 - [x] A clear answer to the project's central question sharpened

@@ -36,11 +36,23 @@ Analysis is reasoning, not building. **No production code.**
 
 ## Success Criteria
 
-- [ ] Each gap analyzed with a documented position
-- [ ] Each risk assessed (likelihood, impact, blocks-build-or-monitor)
-- [ ] Architectural assumptions confirmed or revised in `docs/architecture.md`
-- [ ] The central question sharpened: *where concretely does quantum add value here*
-- [ ] Open questions framed as Phase 3 hypothesis candidates
+- [x] Each gap analyzed with a documented position — taxonomy, weight-update rule, scenario fidelity
+- [x] Each risk assessed (likelihood, impact, blocks-build-or-monitor) — QUBO scaling, latency, loop stability
+- [x] Architectural assumptions confirmed or revised in `docs/architecture.md`
+- [x] The central question sharpened: *where concretely does quantum add value here*
+- [x] Open questions framed as Phase 3 hypothesis candidates
+
+**Status: all criteria met — awaiting Brandt sign-off to transition to Phase 3 (Hypothesis).**
+
+## Phase 2 Outcomes (one-line each)
+
+- **Quantum value:** at this domain's scale, no performance value — value is pedagogical/architectural (measured, not assumed).
+- **Two QUBOs, two nested optimizers:** only the inner *selection* QUBO is a quantum candidate; the outer *weight update* is continuous search, not a QUBO.
+- **Taxonomy:** canonical closed enum (6 scenarios) + thin free-text→enum mapping layer; score classification accuracy separately from response quality.
+- **Scenario fidelity:** the bar is decision diversity (different attacks → different optimal chromosomes), not protocol realism.
+- **Latency:** critical path ≈ 3 LLM hops (Classifier∥Risk concurrent, GA local, Learner off-path) ≈ 4–5s — inside target. LOW risk, monitor.
+- **Loop stability:** MEDIUM risk if naive; mandatory guards = held-out gate + monotonic-or-reject + damping. Does not block.
+- **Carried to Phase 3:** policy-QUBO-vs-weight-regression fork; damped-loop convergence experiment (H1/H2).
 
 ---
 

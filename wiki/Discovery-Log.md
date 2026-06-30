@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-06-29 — Phase 2 Analysis: Gaps & Remaining Risks (closes Phase 2)
+
+Documented positions on the three Discovery gaps and the two risks the scaling probe didn't cover. Reasoning, not building — no production code.
+
+**Gaps**
+- **Attack-type taxonomy:** ground truth is a closed `AttackType` enum (the 6 scenarios); agent free text resolves to it via a thin synonym/substring (→ ChromaDB if needed) mapping layer — no second LLM normalizer. Granularity = the 6 scenarios, no finer. Score classification accuracy separately from response quality.
+- **Weight-update rule:** the loop is **two nested optimizers**. Inner = *selection* (binary + quadratic → a real QUBO, the only quantum candidate). Outer = *weight update* (continuous, non-convex → derivative-free continuous search, **not** a QUBO). The spike's weight sweep is the degenerate 1-D case.
+- **Scenario fidelity:** the bar is **decision diversity** (different attacks → different optimal chromosomes, non-obvious optima), not protocol realism. Make "distinct optima across attacks" an acceptance test before trusting the loop.
+
+**Risks**
+- **6-agent latency — LOW, monitor.** Critical path is ~3 LLM hops, not 6: GA is local PyGAD, Learner is cold-path, Classifier∥Risk parallelise → Observer → (Classifier ∥ Risk) → Response Generator ≈ 4–5s, inside target.
+- **Learning-loop stability — MEDIUM if naive, guards mandatory.** Failure modes: batch overfit, oscillation, feedback drift, degenerate signal. Unifying guard: evaluate on **held-out** ground-truth regret, **monotonic-or-reject** updates (keep last-good), **damp** (EMA/α). Does not block.
+
+**Carried to Phase 3:** policy-QUBO-vs-weight-regression fork; damped-loop convergence experiment.
+
+---
+
 ## 2026-06-28 — Phase 2 Analysis: QUBO Scaling
 
 Probe `spikes/probe_qubo_scaling.py` measured brute force vs. classical simulated annealing as variable count N grows.

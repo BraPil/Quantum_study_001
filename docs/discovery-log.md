@@ -5,6 +5,162 @@
 
 ---
 
+## [2026-06-29] Phase 2 Analysis — Gaps & Remaining Risks (closes Phase 2)
+
+Completes the analysis the QUBO-scaling probe started. The probe settled the *quantum-value* question
+by measurement; this entry takes a documented position on the three design **gaps** the Discovery
+spikes exposed and assesses the two **risks** the probe did not cover (6-agent latency, learning-loop
+stability). Method here is reasoning, not building — per the Phase 2 runbook, genuinely open questions
+are framed as Phase 3 hypotheses rather than forced to an answer now. **No production code added.**
+
+### Gap 1 — Attack-type taxonomy (inferred vs. ground-truth label comparability)
+
+**The gap.** In `spike_agents.py` the Classifier inferred `unauthorized_command_injection` while the
+sim's ground truth (`spike_agents.py:130`) was `unauthorized_plc_write` — semantically the same event,
+two different strings. Free-text agent labels and sim labels cannot be compared for scoring as-is.
+
+**Position.** Decouple the two namespaces and score against a *canonical* set, never against raw agent
+text:
+- **Ground truth is a closed enum** — the 6 attack scenarios already named in `architecture.md`
+  (Unauthorized PLC write · Credential theft · Process kill · Ransomware · Lateral movement · USB
+  insertion). Promote these into an `AttackType` enum alongside the existing `Action` enum in the
+  contracts module. This is the canonical taxonomy.
+- **The agent emits free text; a thin mapping layer resolves it to the enum** (or to `UNKNOWN`). Start
+  with the cheapest mechanism that works — a synonym/substring table (`"plc write" | "register write"
+  | "command injection on a controller" → UNAUTHORIZED_PLC_WRITE`). Only escalate to an
+  embedding-nearest-neighbour match (ChromaDB is already in the stack) if the table proves too brittle.
+  Resist a second LLM "label-normalizer" agent — that adds latency and a new failure mode to dodge a
+  problem a lookup table solves.
+- **Granularity = exactly the 6 scenarios, no finer.** The taxonomy only needs to be as granular as the
+  *response set* is: two attacks that warrant the same optimal chromosome do not need distinct labels.
+  With 6 actions and 6 attack types that is already the right resolution; inventing MITRE-ATT&CK-level
+  sub-techniques would add label classes that map to identical responses — taxonomy fiction.
+
+**Why this is safe to defer to Phase 4 build.** It is a small, well-understood mapping component, not an
+open research question. The position is recorded; nothing here blocks the build. The one real evaluation
+subtlety — that classification *accuracy* (did the agent name the right attack?) must be scored
+separately from *response quality* (was the chosen chromosome good?), so a mislabel and a bad response
+don't get conflated — is logged in `evaluation.md`.
+
+### Gap 2 — The "real" weight-update rule, and what QUBO is actually for
+
+**The gap.** `spike_loop.py`'s `cold_path_retrospect()` is an honest placeholder: it sweeps six
+hand-listed `w_downtime` candidates (`spike_loop.py:88`) and keeps the one minimising true regret on
+the logged batch. It recovered the true weight, proving loop *mechanics* — but a six-value coordinate
+sweep over one weight is not a learning algorithm.
+
+**Position — separate the two optimization problems; they are not the same kind of problem.**
+- **Response/policy *selection* is the QUBO.** Choosing which subset of binary actions to fire — per
+  event (hot path, N≤10) or as a policy table (cold path, N≈36–100) — is genuinely a QUBO: binary
+  variables, quadratic conflict/redundancy penalties (`scenario.py:34`). This is where the
+  formulate→encode→solve→extract pattern lives, and it is the part worth wiring to a quantum backend.
+- **The fitness-weight *update* is NOT naturally a QUBO.** The weights (`FitnessWeights`:
+  threat/downtime/cost/false_pos) are **continuous**, and the loss "regret of the GA decisions these
+  weights induce, summed over history" is a non-convex, non-differentiable function of them (the GA's
+  argmax makes it piecewise-constant). Forcing continuous weights into QUBO would require binary
+  discretisation that throws away resolution for no benefit. The right tool is **derivative-free
+  continuous search over a handful of weights** — Nelder-Mead / coordinate descent / a small CMA-ES,
+  or Bayesian optimisation if evaluations get expensive. The spike's coordinate sweep is the degenerate
+  1-D case of exactly this; the Phase 4 version is the same idea over all four weights with a real
+  search method.
+- **Therefore quantum's locus is unambiguous:** the *selection* QUBO (specifically the cold-path policy
+  QUBO, the only one that grows), never the weight update. This sharpens the architecture's "two QUBOs"
+  framing: the learning loop is `continuous-search(weights)` on the outside wrapping `QUBO(selection)`
+  on the inside — two nested optimizers, only the inner one is a QUBO, only the inner one is a quantum
+  candidate.
+
+**Open question → Phase 3.** Whether retrospective policy optimization is best expressed as *one* large
+cold-path policy QUBO (condition×action table solved once) or as *weight regression* feeding the
+existing per-event QUBO is a real fork. It maps onto hypotheses **H1/H2** already framed. Recorded, not
+forced.
+
+### Gap 3 — Toy-vs-real scenario fidelity (what makes training signal "meaningful")
+
+**The gap.** `scenario.py` is one fixed threat with hand-picked per-action numbers (`_PROPS`) and three
+hand-placed pairwise penalties (`_PAIR_PENALTY`). It proved GA and QUBO agree — but a single static
+threat generates no *learning* signal.
+
+**Position — fidelity is defined by signal, not by realism.** The bar a scenario must clear is *not*
+protocol accuracy (Modbus byte layouts, real PLC timing); it is **decision diversity**:
+1. **Different attack types must induce different optimal chromosomes.** If every attack's best response
+   is the same subset, the cold path has nothing to learn and the QUBO is decorative. This is the
+   single necessary property — and it is already an `evaluation.md` simulation metric ("are different
+   attack types producing meaningfully different optimal response subsets?").
+2. **The optimum must be non-obvious** — the quadratic penalties must occasionally make the best subset
+   *exclude* a high-benefit action (the spike already shows this: quarantine is individually strong but
+   dropped because its pairwise penalties dominate). A problem whose optimum is "take every beneficial
+   action" needs neither GA nor QUBO.
+3. **Per-attack `_PROPS` must vary enough that a miscalibrated weight produces visibly wrong decisions**
+   — otherwise the learning loop (Gap 2) has no regret gradient to descend.
+
+**How much realism is enough:** the minimum that produces properties 1–3. Concretely, the Phase 4 sim
+needs (a) the 6 attack types each with a distinct `_PROPS`/penalty profile, and (b) per-event noise so
+batches differ — *not* a faithful ICS protocol stack. Heavy tools (ICS-SimLab, pyModbus) remain
+overkill, consistent with the Phase 1 finding. **Risk to watch:** hand-authoring 6 profiles that are
+"different enough" without being arbitrary — the guard is to *measure* property 1 (distinct optima
+across attacks) as an acceptance test on the sim before trusting any loop result.
+
+### Risk A — 6-agent hot-path latency
+
+**Likelihood of missing the 5–7s target: LOW. Impact: LOW (research system, no SLA). → Monitor, does
+not block.**
+
+**Reassessment.** The "~7s = 6 × ~1.2s" figure in the runbook assumes six *sequential* LLM hops. That
+is the wrong model — two corrections drop it:
+- **The critical path is ~4 LLM hops, not 6.** GA Optimizer is local PyGAD (~ms, `spike_ga.py` runs 40
+  generations effectively instantly), not an LLM call — it's an LLM-invoked *tool*. The Learning Agent
+  is **cold path**, off the per-event critical path entirely. So the hot-path LLM chain is Observer →
+  Classifier → Risk Assessor → Response Generator.
+- **Classifier and Risk Assessor parallelise.** Both consume only the Observer's output and produce
+  independent fields (attack label vs. risk score/blast radius — `contracts.py:58` ResponseContext);
+  neither needs the other. Run them concurrently (`asyncio.gather`). Critical path becomes Observer →
+  (Classifier ∥ Risk) → Response Generator ≈ **3 sequential hops**.
+- At the spike-measured ~1.2s/Haiku-agent (and Sonnet Response Generator a bit more), the realistic
+  critical path is **~4–5s, inside the target** — before any streaming. Streaming the final Response
+  Generator token-by-token improves *perceived* latency further but doesn't change wall-clock to the GA.
+
+**Guard / what to monitor.** Instrument per-agent time with structlog (already the eval plan), separate
+API TTFT from orchestration overhead, and treat the concurrent Classifier∥Risk structure as a design
+requirement for the Layer-1 pipeline, not an optimisation. Real measurement waits for Phase 4 (the
+agents don't exist yet); this is a *projected* assessment from the 2-agent spike, flagged as such.
+
+**Note for `architecture.md`:** the hot-path latency-target row implies a straight 6-stage line; the
+real shape is a small DAG with one concurrent pair and two off-critical-path stages. Documented there.
+
+### Risk B — Learning-loop stability (GA↔QUBO divergence / oscillation / overfit)
+
+**Likelihood of instability if built naively: MEDIUM. Impact: MEDIUM (corrupts the project's central
+learning result, though not safety). → Monitor with explicit guards; does not block the build, but the
+guards are mandatory, not optional.**
+
+The spike loop is stable only because it is the easy case: one static `W_TRUE`, a single weight, a noise-
+free batch, one update. Every one of those simplifications is a real failure mode when relaxed:
+
+| Failure mode | Mechanism | Guard |
+|---|---|---|
+| **Batch overfit** | Cold path tunes weights to the quirks of one N-event batch; next batch differs | Hold out a validation batch; only accept a weight update if it improves regret on data it wasn't fit to (the spike already gestures at this with separate fit/fresh batches — make it a hard gate) |
+| **Oscillation** | Aggressive full-replacement updates over-correct each cycle, weights ping-pong | Damp the update (apply a fraction α of the proposed change — EMA over weight history), not full replacement |
+| **Feedback runaway / drift** | GA decisions change the logged distribution, which changes the next QUBO, which changes the GA… a loop with no anchor can drift | Anchor to ground-truth regret (the sim knows true harm), and **gate on monotonic improvement**: reject any update that worsens held-out regret, keep last-good weights |
+| **Degenerate signal** | If Gap 3 isn't satisfied (attacks don't induce distinct optima), the loop "learns" noise | Acceptance test on the sim (Gap 3, property 1) *before* trusting loop output |
+| **GA stochasticity masquerading as learning** | PyGAD is seeded per-event in the spike; unseeded, run-to-run variance could be misread as a weight effect | Fix/average seeds when attributing a regret change to a weight change |
+
+**The unifying guard** is one principle: **the loop must be evaluated against held-out, ground-truth-
+anchored regret, and updates must be monotonic-or-rejected with damping.** That converts an open-loop
+amplifier into a controlled one. This is a Phase 3 hypothesis candidate in disguise — "does the damped,
+held-out-gated loop converge and stay converged across K cycles?" is exactly an experiment to design,
+and a natural extension of `spike_loop.py` (iterate the loop K times, vary the batch, plot regret).
+
+### Net effect on Phase 2 success criteria
+
+All three gaps now have a documented position; both remaining risks are assessed (likelihood, impact,
+block-vs-monitor) with named guards. Neither risk blocks the build. Two items are deliberately carried
+forward as Phase 3 hypotheses rather than forced shut: the policy-QUBO-vs-weight-regression fork (Gap 2)
+and the loop-stability convergence experiment (Risk B). Architecture/evaluation notes updated where the
+analysis changed a documented assumption (latency DAG; classification-accuracy-vs-response-quality
+scoring split). Phase 2 is ready to close pending Brandt's sign-off.
+
+---
+
 ## [2026-06-28] Phase 2 Analysis — QUBO Scaling: Where (and Whether) Quantum Helps
 
 **Probe:** `spikes/probe_qubo_scaling.py` — structured random QUBOs (sparse pairwise terms, like
