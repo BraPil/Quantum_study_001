@@ -14,6 +14,16 @@ The domain used for experimentation is a simulated cybersecurity environment (sm
 
 **Important:** No quantum advantage is expected or claimed at this scale. The value is learning the integration pattern: formulate → encode → solve → extract. See `docs/evaluation.md`.
 
+**Two QUBOs, both classical-tractable (Phase 2 analysis).** The architecture contains two distinct
+optimization problems at very different scales:
+- *Per-event response selection* (hot path) — N ≤ 10 binary variables forever (the action space).
+  Trivially classical; quantum never warranted. Currently handled by the GA.
+- *Cold-path policy retrospection* — the only place N grows (condition × action policy, N≈36–100).
+  Still classical-tractable: the scaling probe solves N=60 in ~0.18s with classical simulated annealing.
+
+Quantum here is a **drop-in swap** (`SimulatedAnnealingSampler` → `DWaveSampler`) for studying the
+integration, not a performance lever. See `docs/discovery-log.md` [2026-06-28] Phase 2 Analysis.
+
 ---
 
 ## Hot Path vs. Cold Path
@@ -22,9 +32,17 @@ The domain used for experimentation is a simulated cybersecurity environment (sm
 |--|----------|-----------|
 | **When** | Real-time, per-event | Batch, every N events |
 | **What** | Threat detection → GA response selection | Policy retrospection → QUBO optimization |
-| **Latency target** | 5–7s (Haiku fast agents + Sonnet reasoning agents) | Minutes to hours acceptable |
+| **Latency target** | 5–7s (critical path ~3 LLM hops, not 6 — see below) | Minutes to hours acceptable |
 | **Framework** | Raw Anthropic SDK (Layer 1); LangGraph (Layer 2+) | dwave-neal (local) → D-Wave Leap (cloud) |
 | **Output** | Best response chromosome for this event | Updated fitness weights → better hot-path GA |
+
+**Hot-path latency is a DAG, not a 6-stage line (Phase 2 analysis).** Of the 6 agents, only ~3 are on
+the per-event critical path: **GA Optimizer** is local PyGAD (~ms, an LLM-invoked tool, not an LLM hop),
+and the **Learning Agent** is cold-path/off-critical-path. **Classifier ∥ Risk Assessor** parallelise
+(both consume only the Observer's output, produce independent fields). Critical path = Observer →
+(Classifier ∥ Risk) → Response Generator ≈ 3 sequential LLM hops ≈ ~4–5s at the spike-measured
+~1.2s/Haiku-agent — inside the 5–7s target before streaming. Concurrent Classifier∥Risk is a Layer-1
+*design requirement*, not an optimisation. See discovery-log [2026-06-29] Risk A.
 
 ---
 
@@ -41,6 +59,22 @@ GA uses updated weights for better decisions next time
 ```
 
 The cold-path QUBO result feeds back into the GA fitness function, making the hot path smarter over time.
+
+**The loop is two nested optimizers (Phase 2 analysis).** Only the inner one is a QUBO:
+- *Inner — selection:* choose the best binary action subset (per-event, or as a policy table). Binary
+  variables + quadratic conflict penalties → a genuine QUBO, and the only quantum-swap candidate.
+- *Outer — weight update:* recalibrate the continuous `FitnessWeights`. This is **not** a QUBO — the
+  weights are continuous and the regret-of-induced-decisions loss is non-convex/non-differentiable.
+  The right tool is derivative-free continuous search (coordinate descent / Nelder-Mead / small CMA-ES),
+  of which the spike's 1-D weight sweep is the degenerate case.
+
+So `outer = continuous-search(weights)` wraps `inner = QUBO(selection)`. Quantum's locus is the inner
+selection QUBO, never the weight update. See `docs/discovery-log.md` [2026-06-29] Gap 2.
+
+**Loop stability is a guarded property, not a free one (Phase 2 analysis).** A naive full-replacement
+loop can overfit a batch, oscillate, or drift. Mandatory guards: evaluate updates against a **held-out**
+batch, anchor to **ground-truth regret**, accept only **monotonic** improvements (keep last-good), and
+**damp** updates (EMA, fraction α). See discovery-log [2026-06-29] Risk B.
 
 ---
 
@@ -222,4 +256,4 @@ Every N events:
 
 ---
 
-*Last updated: 2026-06-28*
+*Last updated: 2026-06-29*

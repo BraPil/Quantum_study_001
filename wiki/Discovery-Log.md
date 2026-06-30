@@ -5,6 +5,42 @@
 
 ---
 
+## 2026-06-29 — Phase 2 Analysis: Gaps & Remaining Risks (closes Phase 2)
+
+Documented positions on the three Discovery gaps and the two risks the scaling probe didn't cover. Reasoning, not building — no production code.
+
+**Gaps**
+- **Attack-type taxonomy:** ground truth is a closed `AttackType` enum (the 6 scenarios); agent free text resolves to it via a thin synonym/substring (→ ChromaDB if needed) mapping layer — no second LLM normalizer. Granularity = the 6 scenarios, no finer. Score classification accuracy separately from response quality.
+- **Weight-update rule:** the loop is **two nested optimizers**. Inner = *selection* (binary + quadratic → a real QUBO, the only quantum candidate). Outer = *weight update* (continuous, non-convex → derivative-free continuous search, **not** a QUBO). The spike's weight sweep is the degenerate 1-D case.
+- **Scenario fidelity:** the bar is **decision diversity** (different attacks → different optimal chromosomes, non-obvious optima), not protocol realism. Make "distinct optima across attacks" an acceptance test before trusting the loop.
+
+**Risks**
+- **6-agent latency — LOW, monitor.** Critical path is ~3 LLM hops, not 6: GA is local PyGAD, Learner is cold-path, Classifier∥Risk parallelise → Observer → (Classifier ∥ Risk) → Response Generator ≈ 4–5s, inside target.
+- **Learning-loop stability — MEDIUM if naive, guards mandatory.** Failure modes: batch overfit, oscillation, feedback drift, degenerate signal. Unifying guard: evaluate on **held-out** ground-truth regret, **monotonic-or-reject** updates (keep last-good), **damp** (EMA/α). Does not block.
+
+**Carried to Phase 3:** policy-QUBO-vs-weight-regression fork; damped-loop convergence experiment.
+
+---
+
+## 2026-06-28 — Phase 2 Analysis: QUBO Scaling
+
+Probe `spikes/probe_qubo_scaling.py` measured brute force vs. classical simulated annealing as variable count N grows.
+
+| N | 2^N | BF time | SA time | SA vs BF |
+|---|-----|---------|---------|----------|
+| 20 | 1.0M | 0.55s | 0.06s | optimal |
+| 24 | 16.8M | infeasible | 0.07s | (2-seed agree) |
+| 40 | 1.1T | infeasible | 0.14s | (2-seed agree) |
+| 60 | 1.15×10¹⁸ | infeasible | 0.18s | (2-seed agree) |
+
+**Finding:** Brute force dies ~N=22, but *classical* SA stays sub-200ms and self-consistent to N=60, and is exactly optimal everywhere checkable. So **"brute force infeasible" is not the bar for quantum** — the bar is "even classical heuristics struggle," which this sparse, structured domain never reaches.
+
+**Two-QUBO distinction:** per-event response selection is N≤10 forever (trivially classical); cold-path policy retrospection reaches at most N≈100 (SA solves N=60 in 0.18s). Both classical-tractable.
+
+**Sharpened answer to the central question:** at this domain's scale, quantum adds **no performance value** — its value is pedagogical/architectural (the integration pattern + hot/cold plumbing, quantum as a drop-in swap). The honest finding *is* the deliverable. Phase 3 hypotheses framed: H1 (hard-instance construction), H2 (correctness parity), H3 (hot path never benefits).
+
+---
+
 ## 2026-06-28 — Phase 1 Discovery Spikes
 
 Throwaway proofs in `spikes/` de-risk the highest-risk integrations. All deterministic spikes pass (`tests/test_spikes.py`).

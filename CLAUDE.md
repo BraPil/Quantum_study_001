@@ -194,9 +194,9 @@
 
 ```
 Phase 0 — Exploration        [✅ COMPLETE]
-Phase 1 — Discovery          [🔄 IN PROGRESS]
-Phase 2 — Analysis           [⬜ NOT STARTED]
-Phase 3 — Hypothesis         [⬜ NOT STARTED]
+Phase 1 — Discovery          [✅ COMPLETE]
+Phase 2 — Analysis           [✅ COMPLETE]
+Phase 3 — Hypothesis         [🔄 IN PROGRESS]
 Phase 4 — Experiment         [⬜ NOT STARTED]
   └─ Layer 1: Agentic System   (hot path — raw Anthropic SDK)
   └─ Layer 2: Evolutionary Optimizer  (PyGAD + LangGraph)
@@ -206,15 +206,15 @@ Phase 5 — Results            [⬜ NOT STARTED]
 Phase 6 — Conclusion         [⬜ NOT STARTED]
 ```
 
-**Current phase priorities (Discovery):**
-1. Pin down exact integration points between the layers (data contracts, interfaces, where each tool plugs in)
-2. Build small proof-of-concept spikes for the highest-risk integrations (QUBO solve, GA↔QUBO loop, agent pipeline)
-3. Confirm the approved tools actually work as researched before committing to them in Phase 4
+**Current phase priorities (Hypothesis):**
+1. Formalize the three Analysis-surfaced candidates into testable hypotheses with explicit metrics and falsification criteria (H1 hard-instance quantum distinguishability, H2 correctness-parity plumbing, H3 hot-path-never)
+2. Resolve the two open forks carried from Analysis: policy-QUBO-vs-weight-regression, and the damped/held-out-gated loop-convergence experiment
+3. Produce the Phase 4 experiment design — what to build, what to measure, what counts as success — so the build starts from a spec, not just intent
 
 **Phase discipline:** do not implement features belonging to a later phase until the current
 phase's success criteria are met. Phase definitions live in `docs/architecture.md`.
 
 ---
 
-*Maintained by: Brandt Pileggi. Last updated: 2026-06-28.*
+*Maintained by: Brandt Pileggi. Last updated: 2026-06-30.*
 *Architecture decisions: `docs/decision-log.md` | Discovery log: `docs/discovery-log.md`*

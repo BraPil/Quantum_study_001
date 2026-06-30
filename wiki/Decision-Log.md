@@ -38,4 +38,12 @@ Five-agent research survey produced these decisions (supersede the earlier "pend
 
 ---
 
+## 2026-06-30 — Phase Transition: Analysis → Hypothesis
+
+Phase 2 (Analysis) COMPLETE — all six criteria met; central question sharpened by measurement (quantum adds no performance value at this scale; value is pedagogical/architectural). Phase 3 (Hypothesis) now active. Approved by Brandt (delegated, "proceed as you see fit"). No merge to `main` (human gate).
+
+Phase 3 will formalize H1 (hard-instance distinguishability), H2 (correctness parity), H3 (hot-path-never) into falsifiable hypotheses, resolve the policy-QUBO-vs-weight-regression and damped-loop-convergence forks, and produce the Phase 4 experiment design.
+
+---
+
 *See `docs/decision-log.md` for full rationale on each decision.*
